@@ -1,0 +1,10 @@
+The aim of the module is to provide authentication against the Yale CAS Authentication service, both by a user+password and a user+ticket combination, so it can be used for direct as well as proxied authentication.
+
+
+Changelog:
+
+- v0.1 Initial code
+
+
+Contact: attila@cc.dtu.dk
+Date: Jan 25, 2012
