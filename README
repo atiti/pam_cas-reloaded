@@ -1,10 +1,24 @@
 The aim of the module is to provide authentication against the Yale CAS Authentication service, both by a user+password and a user+ticket combination, so it can be used for direct as well as proxied authentication.
 
+Usage:
+
+1. make
+2. make install
+3. edit /etc/pam.d/....
+4. change to something like:
+
+auth 	   sufficient 	pam_unix.so nullok_secure
+auth	   sufficient	pam_cas.so use_first_pass
+auth	   required	pam_deny.so
+
+Test!
+
 
 Changelog:
 
-- v0.1 Initial code
+- 25/Jan/2012: v0.2 CAS full user+pass combo login, and serviceValidate implemented
+- 25/Jan/2012: v0.1 Initial code
 
 
-Contact: attila@cc.dtu.dk
+Contact: Attila Sukosd <attila@cc.dtu.dk>
 Date: Jan 25, 2012

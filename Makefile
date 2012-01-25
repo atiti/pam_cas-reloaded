@@ -1,7 +1,19 @@
 CFLAGS=-g -Wall -O3 -fPIC
+LDFLAGS=-lcurl
 
 all:
 	gcc $(CFLAGS) -c pam_cas.c
-	ld -x --shared -o pam_cas.so pam_cas.o
+	gcc $(CFLAGS) -c cas.c
+	gcc $(CFLAGS) -c url.c
+	ld -shared $(LDFLAGS) -o pam_cas.so pam_cas.o cas.o url.o
+test:
+	gcc $(CFLAGS) -c test.c
+	gcc $(CFLAGS) -c cas.c
+	gcc $(CFLAGS) -c url.c
+	gcc $(CFLAGS) $(LDFLAGS) -o test test.o cas.o url.o
+
+install:
+	cp pam_cas.so /lib/security/
+
 clean:
-	rm *.o *.so
+	rm *.o *.so test
