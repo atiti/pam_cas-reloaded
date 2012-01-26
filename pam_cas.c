@@ -11,13 +11,9 @@ Changelog:
 */
 
 // CONFIGURATION
-
-
 //#define CAS_DEBUG 1
 #define MIN_TICKET_LEN 20
-#define CAS_LOGIN_URL "http://www.mysite.com/cas/"
-//#define CAS_SERVICE "http://mail.mysite.com/"
-#define CAS_SERVICE "ssh"
+#define CAS_CONFIG_FILE "/etc/pam_cas.conf"
 
 // Support authentication against CAS
 #define PAM_SM_AUTH
@@ -34,11 +30,13 @@ Changelog:
 
 #include "url.h"
 #include "cas.h"
+#include "config.h"
 
 int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char **argv) {
 	
 	char *user, *pw;
         struct CAS cas;
+	CAS_configuration c;
         int ret = 0;
 
 	if (pam_get_user(pamhandle, (const char**)&user, NULL) != PAM_SUCCESS) {
@@ -59,17 +57,22 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 	}
 
 #ifdef CAS_DEBUG
-	syslog(LOG_NOTICE, "got user: %s pass: %s\n", user, pw);
+	syslog(LOG_NOTICE, "Got user: %s pass: %s\n", user, pw);
 #endif
 
-	CAS_init(&cas, CAS_LOGIN_URL, CAS_SERVICE);
+        ret = load_config(&c, CAS_CONFIG_FILE);
+        if (!ret) {
+                syslog(LOG_ERR,  "Failed to load configuration at %s!", CAS_CONFIG_FILE);
+                return PAM_AUTH_ERR;
+        }
 
+	CAS_init(&cas, c.CAS_BASE_URL, c.SERVICE_URL);
 
-	if (strncmp(pw, "ST-", 3) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly serviceTicket?
+	if (c.ENABLE_ST && strncmp(pw, "ST-", 3) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly serviceTicket?
 		ret = CAS_serviceValidate(&cas, pw, user);		
-	} else if (strncmp(pw, "PT-", 3) && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxyTicket?
+	} else if (c.ENABLE_PT && strncmp(pw, "PT-", 3) && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxyTicket?
 		ret = CAS_proxyValidate(&cas, pw);
-	} else {
+	} else if (c.ENABLE_UP) {
         	ret = CAS_login(&cas, user, pw);
 	}
 

@@ -20,5 +20,10 @@ Changelog:
 - 25/Jan/2012: v0.1 Initial code
 
 
+Credits:
+- Config file loading is done by the inih simple C parser (http://code.google.com/p/inih/)
+- CAS/PAM code was inspired by the Yale pam_cas module as well as the french esup-portail.org's version.
+
+
 Contact: Attila Sukosd <attila@cc.dtu.dk>
 Date: Jan 25, 2012
