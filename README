@@ -4,18 +4,21 @@ Usage:
 
 1. make
 2. make install
-3. edit /etc/pam.d/....
-4. change to something like:
+3. cp conf/pam_cas.conf /etc/pam_cas.conf
+4. edit /etc/pam_cas.conf
+5. edit /etc/pam.d/.... (ssh/dovecot/etc)
+6. change to something like:
 
 auth 	   sufficient 	pam_unix.so nullok_secure
 auth	   sufficient	pam_cas.so use_first_pass
 auth	   required	pam_deny.so
 
-Test!
+Test! (Watch the syslog for authentication attempts)
 
 
 Changelog:
 
+- 26/Jan/2012: v0.3 Configuration file support added
 - 25/Jan/2012: v0.2 CAS full user+pass combo login, and serviceValidate implemented
 - 25/Jan/2012: v0.1 Initial code
 

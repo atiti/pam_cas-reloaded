@@ -5,6 +5,7 @@ License: BSD
 
 Changelog:
 
+- 26/Jan/2012 v0.3 Configuration file support added
 - 25/Jan/2012 v0.2 CAS full user+pass login and serviceTicket login implementation
 - 25/Jan/2012 v0.1 Initial version
 
