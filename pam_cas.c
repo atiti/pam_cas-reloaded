@@ -70,10 +70,19 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 	CAS_init(&cas, c.CAS_BASE_URL, c.SERVICE_URL);
 
 	if (c.ENABLE_ST && strncmp(pw, "ST-", 3) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly serviceTicket?
+#ifdef CAS_DEBUG
+		syslog(LOG_INFO, "serviceTicket found. Doing serviceTicket validation!");
+#endif
 		ret = CAS_serviceValidate(&cas, pw, user);		
 	} else if (c.ENABLE_PT && strncmp(pw, "PT-", 3) && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxyTicket?
-		ret = CAS_proxyValidate(&cas, pw);
+#ifdef CAS_DEBUG
+		syslog(LOG_INFO, "proxyTicket found. Doing proxyTicket validation!");
+#endif
+		ret = CAS_proxyValidate(&cas, pw, user);
 	} else if (c.ENABLE_UP) {
+#ifdef CAS_DEBUG
+		syslog(LOG_INFO, "user+pass combo login!");
+#endif
         	ret = CAS_login(&cas, user, pw);
 	}
 

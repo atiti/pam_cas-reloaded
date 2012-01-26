@@ -13,7 +13,7 @@ struct CAS {
 int CAS_init(struct CAS *c, char *CAS_URL, char *service);
 int CAS_login(struct CAS *c, char *uname, char *pass);
 int CAS_serviceValidate(struct CAS *c, char *ticket, char *uname);
-int CAS_proxyValidate(struct CAS *c, char *ticket);
+int CAS_proxyValidate(struct CAS *c, char *ticket, char *uname);
 int CAS_cleanup(struct CAS *c);
 
 #endif /* _H_CAS_H_ */

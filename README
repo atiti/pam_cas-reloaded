@@ -23,6 +23,13 @@ Changelog:
 - 25/Jan/2012: v0.1 Initial code
 
 
+
+Useful documentation on CAS:
+- http://www.jasig.org/cas/protocol
+- http://www.jasig.org/cas/cas2-architecture
+- https://wiki.jasig.org/display/CAS/Proxy+CAS+Walkthrough
+
+
 Credits:
 - Config file loading is done by the inih simple C parser (http://code.google.com/p/inih/)
 - CAS/PAM code was inspired by the Yale pam_cas module as well as the french esup-portail.org's version.
