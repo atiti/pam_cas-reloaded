@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 #include <string.h>
+#include <syslog.h>
 
 struct string {
 	char *ptr;

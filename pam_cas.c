@@ -12,7 +12,7 @@ Changelog:
 */
 
 // CONFIGURATION
-//#define CAS_DEBUG 1
+#define CAS_DEBUG 1
 #define MIN_TICKET_LEN 20
 #define CAS_CONFIG_FILE "/etc/pam_cas.conf"
 
@@ -58,7 +58,7 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 	}
 
 #ifdef CAS_DEBUG
-	syslog(LOG_NOTICE, "Got user: %s pass: %s\n", user, pw);
+	//syslog(LOG_NOTICE, "Got user: %s pass: %s\n", user, pw);
 #endif
 
         ret = load_config(&c, CAS_CONFIG_FILE);

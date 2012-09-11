@@ -60,14 +60,14 @@ int CAS_login(struct CAS *c, char *uname, char *pass) {
 
 	if (!ret) { 
 #ifdef DEBUG
-		fprintf(stderr, "Could not get login ticket!\n");
+		syslog(LOG_INFO, "Could not get login ticket!\n");
 #endif
 		return -1;
 	}
 
 #ifdef DEBUG
-	printf("Got LT: %s\n", lt);
-	printf("Using service: %s\n", c->service);
+	syslog(LOG_INFO, "Got LT: %s\n", lt);
+	syslog(LOG_INFO, "Using service: %s\n", c->service);
 #endif
 
 	init_string(&content);
@@ -80,19 +80,21 @@ int CAS_login(struct CAS *c, char *uname, char *pass) {
 
 
 	URL_POST_request(&c->u, URL, &content); 
-
+#ifdef DEBUG
+	syslog(LOG_INFO, "Content: %s\n", content.ptr);
+#endif
 	ret = CAS_find_serviceticket(&content, lt, 512);
 	free(content.ptr);
 	content.len = 0;	
 	if (!ret) {
 #ifdef DEBUG
-		fprintf(stderr, "Could not get service ticket!\n");
+		syslog(LOG_INFO, "Could not get service ticket!\n");
 #endif
 		return -2;
 	}
 
 #ifdef DEBUG
-	fprintf(stderr, "Successfully logged in!\n");
+	syslog(LOG_INFO, "Successfully logged in!\n");
 #endif
 
 	ret = CAS_serviceValidate(c, lt, uname);

@@ -1,6 +1,7 @@
 #ifndef _H_CAS_H_
 #define _H_CAS_H_
 
+#include <syslog.h>
 #include "url.h"
 
 

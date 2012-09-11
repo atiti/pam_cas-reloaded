@@ -1,6 +1,6 @@
 #include "url.h"
 
-//#define URL_DEBUG 1
+#define URL_DEBUG 1
 
 void init_string(struct string *s) {
 	s->len = 0;
@@ -20,7 +20,10 @@ void URL_init(struct URL_Request *u) {
 }
 
 void URL_add_form(struct URL_Request *u, char *name, char *content) {
+	//char *econtent = NULL;
+	//econtent = curl_easy_escape(u->curl, content, 0);
 	curl_formadd(&u->formpost, &u->lastptr, CURLFORM_COPYNAME, name, CURLFORM_COPYCONTENTS, content, CURLFORM_END);
+	//curl_free(econtent);
 }
 
 void URL_add_header(struct URL_Request *u, char *str) {
@@ -42,7 +45,7 @@ size_t URL_writefunc(void *ptr, size_t size, size_t nmemb, struct string *s) {
 int URL_GET_request(struct URL_Request *u, char *url, struct string *out) {
 	int len = 0;
 #ifdef URL_DEBUG
-	printf("GET URL: %s\n", url);
+	syslog(LOG_INFO, "GET URL: %s\n", url);
 #endif
 	
 	curl_easy_setopt(u->curl, CURLOPT_URL, url);
@@ -68,7 +71,7 @@ int URL_POST_request(struct URL_Request *u, char *url, struct string *out) {
         curl_easy_setopt(u->curl, CURLOPT_URL, url);
 
 #ifdef URL_DEBUG
-	printf("POST URL: %s\n", url);
+	syslog(LOG_INFO, "POST URL: %s\n", url);
 #endif
 
 	if (u->formpost != NULL)
