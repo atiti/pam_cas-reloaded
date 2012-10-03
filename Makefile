@@ -7,7 +7,7 @@ all:
 	gcc $(CFLAGS) -c url.c
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -c config.c
-	ld -shared $(LDFLAGS) -o pam_cas.so pam_cas.o cas.o url.o ini.o config.o
+	gcc -shared $(LDFLAGS) -o pam_cas.so pam_cas.o cas.o url.o ini.o config.o
 test:
 	gcc $(CFLAGS) -c test.c
 	gcc $(CFLAGS) -c cas.c

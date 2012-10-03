@@ -74,7 +74,7 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 		syslog(LOG_INFO, "serviceTicket found. Doing serviceTicket validation!");
 #endif
 		ret = CAS_serviceValidate(&cas, pw, user);		
-	} else if (c.ENABLE_PT && strncmp(pw, "PT-", 3) && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxyTicket?
+	} else if (c.ENABLE_PT && strncmp(pw, "PT-", 3) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxyTicket?
 #ifdef CAS_DEBUG
 		syslog(LOG_INFO, "proxyTicket found. Doing proxyTicket validation!");
 #endif
