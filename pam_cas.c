@@ -67,7 +67,7 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
                 return PAM_AUTH_ERR;
         }
 
-	CAS_init(&cas, c.CAS_BASE_URL, c.SERVICE_URL);
+	CAS_init(&cas, c.CAS_BASE_URL, c.SERVICE_URL, c.SERVICE_CALLBACK_URL);
 
 	if (c.ENABLE_ST && strncmp(pw, "ST-", 3) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly serviceTicket?
 #ifdef CAS_DEBUG
@@ -79,6 +79,11 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 		syslog(LOG_INFO, "proxyTicket found. Doing proxyTicket validation!");
 #endif
 		ret = CAS_proxyValidate(&cas, pw, user);
+	} else if (c.ENABLE_PT && strncmp(pw, "PGT-",4) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxy granting ticket
+#ifdef CAS_DEBUG
+		syslog(LOG_INFO, "pgTicket found. Doing proxy-ing and proxyTicket validation!");
+		ret = CAS_proxy(&cas, pw, user);
+#endif
 	} else if (c.ENABLE_UP) {
 #ifdef CAS_DEBUG
 		syslog(LOG_INFO, "user+pass combo login!");

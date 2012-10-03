@@ -27,8 +27,9 @@ int main(int argv, char **argc) {
 	// Initialize the CAS backend
 	CAS_init(&cas, c.CAS_BASE_URL, c.SERVICE_URL, c.SERVICE_CALLBACK_URL);
 
-	// Attempt a full login with user/pass
-	ret = CAS_login(&cas, "myuser", "mypass");
+
+	ret = CAS_proxy(&cas, "PGT-xxxxxxxxxx-xxxxxxxx", "myuser");
+
 
 	// Ret > 1 means we are authenticated 
 	if (ret > 0)

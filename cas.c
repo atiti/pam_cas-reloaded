@@ -1,11 +1,13 @@
 #include "cas.h"
 
-//#define DEBUG 1
+#define DEBUG 1
+#define DEBUG_CONTENT 1
 
-int CAS_init(struct CAS *c, char *CAS_URL, char *service) {
+int CAS_init(struct CAS *c, char *CAS_URL, char *service, char *callback) {
 	strcpy(c->CAS_URL, CAS_URL);
 	URL_init(&c->u);	
 	c->service = service;
+	c->service_callback = callback;
 	return 1;
 }
 
@@ -20,7 +22,8 @@ int CAS_find_part(struct string *s, char *startmatch, char endchar, char *dest, 
 		sp = ptr + strlen(startmatch);
 		ep = strchr(sp, endchar);
 		if ((ep-sp) < dstsize) {
-			strncpy(dest, sp, ep-sp);
+			*dest = '\0';
+			strncat(dest, sp, ep-sp);
 			return 1;
 		}
 		return -1;
@@ -31,6 +34,7 @@ int CAS_find_part(struct string *s, char *startmatch, char endchar, char *dest, 
 int CAS_find_loginticket(struct string *s, char *ticket, int size) {
 	return CAS_find_part(s, "id=\"lt\" value=\"" , '"', ticket, size);
 }
+
 int CAS_find_serviceticket(struct string *s, char *ticket, int size) {
 	return CAS_find_part(s, "?ticket=", '\'', ticket, size);
 }
@@ -39,6 +43,9 @@ int CAS_find_user(struct string *s, char *user, int size) {
 	return CAS_find_part(s, "<cas:user>", '<', user, size);
 }
 
+int CAS_find_pgt(struct string *s, char *pt, int size) {
+	return CAS_find_part(s, "<cas:proxyTicket>", '<', pt, size);
+}
 
 int CAS_login(struct CAS *c, char *uname, char *pass) {
 	char URL[1000];
@@ -53,6 +60,10 @@ int CAS_login(struct CAS *c, char *uname, char *pass) {
 		sprintf(URL, "%s/login", c->CAS_URL);	
 
 	URL_GET_request(&c->u, URL, &content);
+
+#ifdef DEBUG_CONTENT
+	syslog(LOG_DEBUG, "/login: %s", content.ptr);
+#endif
 
 	ret = CAS_find_loginticket(&content, lt, 512);
 	free(content.ptr);
@@ -80,8 +91,8 @@ int CAS_login(struct CAS *c, char *uname, char *pass) {
 
 
 	URL_POST_request(&c->u, URL, &content); 
-#ifdef DEBUG
-	syslog(LOG_INFO, "Content: %s\n", content.ptr);
+#ifdef DEBUG_CONTENT
+	syslog(LOG_DEBUG, "serviceTicket: %s\n", content.ptr);
 #endif
 	ret = CAS_find_serviceticket(&content, lt, 512);
 	free(content.ptr);
@@ -98,7 +109,6 @@ int CAS_login(struct CAS *c, char *uname, char *pass) {
 #endif
 
 	ret = CAS_serviceValidate(c, lt, uname);
-
 	return ret;
 }
 
@@ -110,24 +120,59 @@ int CAS_serviceValidate(struct CAS *c, char *ticket, char *u) {
         init_string(&content);
 
 	if (c->service != NULL)
-		sprintf(URL, "%s/serviceValidate?service=%s&ticket=%s", c->CAS_URL, c->service, ticket);
+		sprintf(URL, "%s/serviceValidate?service=%s&ticket=%s&pgtUrl=%s", c->CAS_URL, c->service, ticket, c->service_callback);
 	else
 		sprintf(URL, "%s/serviceValidate?ticket=%s", c->CAS_URL, ticket);
 
         URL_GET_request(&c->u, URL, &content);
-	
+
+#ifdef DEBUG_CONTENT
+	syslog(LOG_DEBUG, "serviceValidate: %s", content.ptr);
+#endif	
+
+
 	ret = CAS_find_user(&content, user, 512);
 	if (ret) {
 		if (u != NULL) { // User comparison, strictly speaking not needed, but better be safe than sorry
 			if (strncmp(user, u, strlen(user)) == 0)
-				return 1;
+				ret = 1;
 			else
-				return 0;
-		}
-		return 2;
+				ret = 0;
+		} else 
+			ret = 2;
 	} 
 	free(content.ptr);
-	return 0;
+	return ret;
+}
+
+int CAS_proxy(struct CAS *c, char *pgt, char *u) {
+	char URL[1000];
+	char pt[512];
+	int ret = 0;
+	struct string content;
+	init_string(&content);
+
+	sprintf(URL, "%s/proxy?targetService=%s&pgt=%s", c->CAS_URL, c->service, pgt);
+	
+	URL_GET_request(&c->u, URL, &content);
+
+#ifdef DEBUG_CONTENT
+	syslog(LOG_DEBUG, "PGT: %s", content.ptr);	
+#endif
+	
+	ret = CAS_find_pgt(&content, pt, 512);
+#ifdef DEBUG
+	syslog(LOG_INFO, "ProxyTicket: %s", pt);
+#endif
+
+	if (ret) {
+		if (pt != NULL) {
+			ret = CAS_proxyValidate(c, pt, u);
+		} else 
+			ret = 2;
+	}
+	free(content.ptr);
+	return ret;
 }
 
 int CAS_proxyValidate(struct CAS *c, char *ticket, char *u) {
@@ -144,18 +189,22 @@ int CAS_proxyValidate(struct CAS *c, char *ticket, char *u) {
 
         URL_GET_request(&c->u, URL, &content);
 
+#ifdef DEBUG_CONTENT
+	syslog(LOG_DEBUG, "proxyValidate: %s", content.ptr);
+#endif
+
         ret = CAS_find_user(&content, user, 512);
         if (ret) {
                 if (u != NULL) {
                         if (strncmp(user, u, strlen(user)) == 0)
-                                return 1;
+                                ret = 1;
                         else
-                                return 0;
-                }
-                return 2;
+                                ret = 0;
+                } else
+                	ret = 2;
         }
         free(content.ptr);
-        return 0;
+        return ret;
 }
 
 int CAS_cleanup(struct CAS *c) {

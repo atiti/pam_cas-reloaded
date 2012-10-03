@@ -9,11 +9,13 @@ struct CAS {
 	char CAS_URL[500];
 	struct URL_Request u;
 	char *service;
+	char *service_callback;
 };
 
-int CAS_init(struct CAS *c, char *CAS_URL, char *service);
+int CAS_init(struct CAS *c, char *CAS_URL, char *service, char *callback);
 int CAS_login(struct CAS *c, char *uname, char *pass);
 int CAS_serviceValidate(struct CAS *c, char *ticket, char *uname);
+int CAS_proxy(struct CAS *c, char *ticket, char *uname);
 int CAS_proxyValidate(struct CAS *c, char *ticket, char *uname);
 int CAS_cleanup(struct CAS *c);
 

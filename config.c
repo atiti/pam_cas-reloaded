@@ -8,6 +8,8 @@ static int cfg_handler(void *user, const char *section, const char *name, const 
 
 	if (MATCH("General", "SERVICE_URL")) {
 		cfg->SERVICE_URL = strdup(value);
+	} else if (MATCH("General", "SERVICE_CALLBACK_URL")) {
+		cfg->SERVICE_CALLBACK_URL = strdup(value);
 	} else if (MATCH("General", "CAS_BASE_URL")) {
 		cfg->CAS_BASE_URL = strdup(value);
 	} else if (MATCH("General", "ENABLE_ST")) {
@@ -23,6 +25,7 @@ static int cfg_handler(void *user, const char *section, const char *name, const 
 
 void init_config(CAS_configuration *c) {
 	c->SERVICE_URL = NULL;
+	c->SERVICE_CALLBACK_URL = NULL;
 	c->CAS_BASE_URL = NULL;
 	c->ENABLE_ST = 0;
 	c->ENABLE_PT = 0;

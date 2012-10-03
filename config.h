@@ -8,6 +8,7 @@
 
 typedef struct {
 	char* SERVICE_URL;
+	char* SERVICE_CALLBACK_URL;
 	char* CAS_BASE_URL;
 	int ENABLE_ST;
 	int ENABLE_PT;
