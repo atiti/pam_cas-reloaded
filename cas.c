@@ -1,7 +1,7 @@
 #include "cas.h"
 
 #define DEBUG 1
-#define DEBUG_CONTENT 1
+//#define DEBUG_CONTENT 1
 
 int CAS_init(struct CAS *c, char *CAS_URL, char *service, char *callback) {
 	strcpy(c->CAS_URL, CAS_URL);
@@ -62,7 +62,7 @@ int CAS_login(struct CAS *c, char *uname, char *pass) {
 	URL_GET_request(&c->u, URL, &content);
 
 #ifdef DEBUG_CONTENT
-	syslog(LOG_DEBUG, "/login: %s", content.ptr);
+	LOG_MSG(LOG_DEBUG, "/login: %s", content.ptr);
 #endif
 
 	ret = CAS_find_loginticket(&content, lt, 512);
@@ -71,14 +71,14 @@ int CAS_login(struct CAS *c, char *uname, char *pass) {
 
 	if (!ret) { 
 #ifdef DEBUG
-		syslog(LOG_INFO, "Could not get login ticket!\n");
+		LOG_MSG(LOG_INFO, "Could not get login ticket!\n");
 #endif
 		return -1;
 	}
 
 #ifdef DEBUG
-	syslog(LOG_INFO, "Got LT: %s\n", lt);
-	syslog(LOG_INFO, "Using service: %s\n", c->service);
+	LOG_MSG(LOG_INFO, "LoginTicket: %s\n", lt);
+	LOG_MSG(LOG_INFO, "Using service: %s\n", c->service);
 #endif
 
 	init_string(&content);
@@ -92,20 +92,20 @@ int CAS_login(struct CAS *c, char *uname, char *pass) {
 
 	URL_POST_request(&c->u, URL, &content); 
 #ifdef DEBUG_CONTENT
-	syslog(LOG_DEBUG, "serviceTicket: %s\n", content.ptr);
+	LOG_MSG(LOG_DEBUG, "serviceTicket: %s\n", content.ptr);
 #endif
 	ret = CAS_find_serviceticket(&content, lt, 512);
 	free(content.ptr);
 	content.len = 0;	
 	if (!ret) {
 #ifdef DEBUG
-		syslog(LOG_INFO, "Could not get service ticket!\n");
+		LOG_MSG(LOG_INFO, "Could not get service ticket!\n");
 #endif
 		return -2;
 	}
 
 #ifdef DEBUG
-	syslog(LOG_INFO, "Successfully logged in!\n");
+	LOG_MSG(LOG_INFO, "Successfully logged in!\n");
 #endif
 
 	ret = CAS_serviceValidate(c, lt, uname);
@@ -127,7 +127,7 @@ int CAS_serviceValidate(struct CAS *c, char *ticket, char *u) {
         URL_GET_request(&c->u, URL, &content);
 
 #ifdef DEBUG_CONTENT
-	syslog(LOG_DEBUG, "serviceValidate: %s", content.ptr);
+	LOG_MSG(LOG_DEBUG, "serviceValidate: %s", content.ptr);
 #endif	
 
 
@@ -157,12 +157,12 @@ int CAS_proxy(struct CAS *c, char *pgt, char *u) {
 	URL_GET_request(&c->u, URL, &content);
 
 #ifdef DEBUG_CONTENT
-	syslog(LOG_DEBUG, "PGT: %s", content.ptr);	
+	LOG_MSG(LOG_DEBUG, "PGT: %s", content.ptr);	
 #endif
 	
 	ret = CAS_find_pgt(&content, pt, 512);
 #ifdef DEBUG
-	syslog(LOG_INFO, "ProxyTicket: %s", pt);
+	LOG_MSG(LOG_INFO, "ProxyTicket: %s", pt);
 #endif
 
 	if (ret) {
@@ -190,7 +190,7 @@ int CAS_proxyValidate(struct CAS *c, char *ticket, char *u) {
         URL_GET_request(&c->u, URL, &content);
 
 #ifdef DEBUG_CONTENT
-	syslog(LOG_DEBUG, "proxyValidate: %s", content.ptr);
+	LOG_MSG(LOG_DEBUG, "proxyValidate: %s", content.ptr);
 #endif
 
         ret = CAS_find_user(&content, user, 512);

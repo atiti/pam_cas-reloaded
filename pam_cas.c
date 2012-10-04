@@ -41,29 +41,34 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
         int ret = 0;
 
 	if (pam_get_user(pamhandle, (const char**)&user, NULL) != PAM_SUCCESS) {
-		syslog(LOG_ERR, "User does not exist!");
+		LOG_MSG(LOG_ERR, "User does not exist!");
 		return PAM_AUTH_ERR;
 	}
 
 	if (pam_get_item(pamhandle, PAM_OLDAUTHTOK, (const void**)&pw)  != PAM_SUCCESS) {
-		syslog(LOG_ERR, "Cannot get the password!");
+		LOG_MSG(LOG_ERR, "Cannot get the password!");
 		return PAM_AUTH_ERR;
 	}
 
 	if (pw == NULL) {
 		if (pam_get_item(pamhandle, PAM_AUTHTOK, (const void**)&pw) != PAM_SUCCESS) {
-			syslog(LOG_ERR, "Cannot get  the password 2!");
+			LOG_MSG(LOG_ERR, "Cannot get  the password 2!");
 			return PAM_AUTH_ERR;
 		}
 	}
 
+	if (pw == NULL) {
+		LOG_MSG(LOG_ERR, "Did not get password, check the PAM configuration!");
+		return PAM_AUTH_ERR;
+	}
+
 #ifdef CAS_DEBUG
-	//syslog(LOG_NOTICE, "Got user: %s pass: %s\n", user, pw);
+//	LOG_MSG(LOG_NOTICE, "Got user: %s pass: %s\n", user, pw);
 #endif
 
         ret = load_config(&c, CAS_CONFIG_FILE);
         if (!ret) {
-                syslog(LOG_ERR,  "Failed to load configuration at %s!", CAS_CONFIG_FILE);
+                LOG_MSG(LOG_ERR,  "Failed to load configuration at %s!", CAS_CONFIG_FILE);
                 return PAM_AUTH_ERR;
         }
 
@@ -71,31 +76,31 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 
 	if (c.ENABLE_ST && strncmp(pw, "ST-", 3) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly serviceTicket?
 #ifdef CAS_DEBUG
-		syslog(LOG_INFO, "serviceTicket found. Doing serviceTicket validation!");
+		LOG_MSG(LOG_INFO, "serviceTicket found. Doing serviceTicket validation!");
 #endif
 		ret = CAS_serviceValidate(&cas, pw, user);		
 	} else if (c.ENABLE_PT && strncmp(pw, "PT-", 3) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxyTicket?
 #ifdef CAS_DEBUG
-		syslog(LOG_INFO, "proxyTicket found. Doing proxyTicket validation!");
+		LOG_MSG(LOG_INFO, "proxyTicket found. Doing proxyTicket validation!");
 #endif
 		ret = CAS_proxyValidate(&cas, pw, user);
 	} else if (c.ENABLE_PT && strncmp(pw, "PGT-",4) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxy granting ticket
 #ifdef CAS_DEBUG
-		syslog(LOG_INFO, "pgTicket found. Doing proxy-ing and proxyTicket validation!");
+		LOG_MSG(LOG_INFO, "pgTicket found. Doing proxy-ing and proxyTicket validation!");
 		ret = CAS_proxy(&cas, pw, user);
 #endif
 	} else if (c.ENABLE_UP) {
 #ifdef CAS_DEBUG
-		syslog(LOG_INFO, "user+pass combo login!");
+		LOG_MSG(LOG_INFO, "user+pass combo login!");
 #endif
         	ret = CAS_login(&cas, user, pw);
 	}
 
 #ifdef CAS_DEBUG
 	if (ret > 0)
-                syslog(LOG_INFO, "CAS user %s logged in successfully! ret: %d", user, ret);
+                LOG_MSG(LOG_INFO, "CAS user %s logged in successfully! ret: %d", user, ret);
         else
-                syslog(LOG_INFO, "Failed to authenticate CAS user %s. ret: %d", user, ret);
+                LOG_MSG(LOG_INFO, "Failed to authenticate CAS user %s. ret: %d", user, ret);
 #endif
 
 

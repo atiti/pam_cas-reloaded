@@ -7,6 +7,13 @@
 #include <string.h>
 #include <syslog.h>
 
+
+#ifndef LOG_MSG
+// Lets do some syslogging
+#define LOG_MSG(DEST, FORMAT, ...) \
+        syslog(DEST, "%s:%d: " FORMAT, __FILE__, __LINE__, ##__VA_ARGS__)
+#endif
+
 struct string {
 	char *ptr;
 	size_t len;

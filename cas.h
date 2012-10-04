@@ -4,6 +4,11 @@
 #include <syslog.h>
 #include "url.h"
 
+#ifndef LOG_MSG
+// Lets do some syslogging
+#define LOG_MSG(DEST, FORMAT, ...) \
+	syslog(DEST, "%s:%d: " FORMAT, __FILE__, __LINE__, ##__VA_ARGS__)
+#endif
 
 struct CAS {
 	char CAS_URL[500];
