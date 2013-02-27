@@ -12,7 +12,7 @@ Changelog:
 */
 
 // CONFIGURATION
-#define CAS_DEBUG 1
+//#define CAS_DEBUG 1
 #define MIN_TICKET_LEN 20
 #define CAS_CONFIG_FILE "/etc/pam_cas.conf"
 
