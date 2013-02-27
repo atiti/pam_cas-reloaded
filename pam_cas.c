@@ -112,6 +112,10 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 	return PAM_AUTH_ERR;
 }
 
+int pam_sm_acct_mgmt(pam_handle_t *pamhandle, int flags, int arg, const char **argv) {
+    return PAM_SUCCESS;
+}
+
 int pam_sm_setcred(pam_handle_t *pamhandle, int flags, int argc, const char **argv) {
 	return PAM_SUCCESS;
 }
