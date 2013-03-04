@@ -12,7 +12,7 @@ Changelog:
 */
 
 // CONFIGURATION
-#define CAS_DEBUG 1
+//#define CAS_DEBUG 1
 #define MIN_TICKET_LEN 20
 #define CAS_CONFIG_FILE "/etc/pam_cas.conf"
 
@@ -84,7 +84,7 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 		LOG_MSG(LOG_INFO, "proxyTicket found. Doing proxyTicket validation!");
 #endif
 		ret = CAS_proxyValidate(&cas, pw, user);
-	} else if (c.ENABLE_PT && strncmp(pw, "PGT-",4) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxy granting ticket
+	} else if (c.ENABLE_PT && strncmp(pw, "ST-",4) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly a proxy granting ticket
 #ifdef CAS_DEBUG
 		LOG_MSG(LOG_INFO, "pgTicket found. Doing proxy-ing and proxyTicket validation!");
 		ret = CAS_proxy(&cas, pw, user);
@@ -110,6 +110,10 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
 		return PAM_SUCCESS;
 
 	return PAM_AUTH_ERR;
+}
+
+int pam_sm_acct_mgmt(pam_handle_t *pamhandle, int flags, int arg, const char **argv) {
+    return PAM_SUCCESS;
 }
 
 int pam_sm_setcred(pam_handle_t *pamhandle, int flags, int argc, const char **argv) {

@@ -25,6 +25,8 @@ struct URL_Request {
 	struct curl_httppost *formpost;
 	struct curl_httppost *lastptr;
 	struct curl_slist *headerlist;
+	char *post_data;
+	char *redirect_url;
 };
 
 void URL_init(struct URL_Request *u);
