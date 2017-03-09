@@ -72,6 +72,7 @@ int pam_sm_authenticate(pam_handle_t *pamhandle, int flags, int arg, const char 
                 return PAM_AUTH_ERR;
         }
 
+	ret = 0;
 	CAS_init(&cas, c.CAS_BASE_URL, c.SERVICE_URL, c.SERVICE_CALLBACK_URL);
 
 	if (c.ENABLE_ST && strncmp(pw, "ST-", 3) == 0 && strlen(pw) > MIN_TICKET_LEN) { // Possibly serviceTicket?

@@ -18,6 +18,7 @@ Test! (Watch the syslog for authentication attempts)
 
 Changelog:
 
+- 04/Nov/2016: v0.4 Fix security fail (reported by Pat Hennessy)
 - 26/Jan/2012: v0.3 Configuration file support added
 - 25/Jan/2012: v0.2 CAS full user+pass combo login, and serviceValidate implemented
 - 25/Jan/2012: v0.1 Initial code
